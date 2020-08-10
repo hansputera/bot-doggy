@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 class Database
 {
-    string dburl = "mongodb://hanif:1@cluster0-shard-00-00.s9lib.azure.mongodb.net:27017,cluster0-shard-00-01.s9lib.azure.mongodb.net:27017,cluster0-shard-00-02.s9lib.azure.mongodb.net:27017/db?ssl=true&replicaSet=atlas-p09mvt-shard-0&authSource=admin&retryWrites=true&w=majority";
-          
+    string dburl = "";
+    
    public async void afkset(string userid, string reason)
     {
        
