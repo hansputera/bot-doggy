@@ -1,17 +1,18 @@
-﻿using Newtonsoft.Json;
+using Discord;
+using Discord.WebSocket;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 class CoronaHTTP
 {
-    string url = "https://disease.sh/v2/countries/";
-
-    public async void country(string c)
+    public static async void country(string c, SocketMessage message)
     {
         var req = new HttpClient();
-        var body = await req.GetAsync(url + c);
+        var body = await req.GetAsync("https://disease.sh/v2/countries/" + c.ToLower());
         
         if (!body.IsSuccessStatusCode)
         {
@@ -22,6 +23,30 @@ class CoronaHTTP
         {
             var data = await body.Content.ReadAsStringAsync();
             var converting = JObject.Parse(data).ToObject<Corontod>();
+
+            var coronaEmbedBuild = new EmbedBuilder()
+            {
+                Color = new Color(23658),
+                Title = "Corona info for " + c.ToLower(),
+                Author = new EmbedAuthorBuilder()
+                {
+                    Name = converting.Country,
+                    IconUrl = converting.CountryInfo.flag 
+                },
+                Footer = new EmbedFooterBuilder()
+                {
+                    Text = "© " + System.DateTime.Now.Year
+
+                }
+            };
+            coronaEmbedBuild.AddField("😷 Cases", "**" + converting.cases + " Cases**", true);
+            coronaEmbedBuild.AddField("😰 Deaths", "**" + converting.deaths + " Deaths**", true);
+            coronaEmbedBuild.AddField("🙏 Recovered", "**" + converting.recovered + " Recovered**", true);
+            coronaEmbedBuild.AddField("🔍 Continent", "**" + converting.continent + "**", true);
+
+            await message.Channel.SendMessageAsync(embed: coronaEmbedBuild.Build());
+
+            
         }
         
     }
@@ -54,6 +79,29 @@ class CoronaHTTP
 
         [JsonProperty("active")]
         public int active { get; private set; }
+
+        [JsonProperty("critical")]
+        public int critical { get; private set; }
+    
+        [JsonProperty("casesPerOneMillion")]
+        public int casesPerOneMillion { get; private set; }
+
+        [JsonProperty("deathsPerOneMillion")]
+        public int deathsPerOneMillion { get; private set; }
+
+        [JsonProperty("tests")]
+        public int tests { get; private set; }
+
+        [JsonProperty("testsPerOneMillion")]
+        public int testsPerOneMillion { get; private set; }
+
+        [JsonProperty("population")]
+        public int population { get; private set; }
+
+        [JsonProperty("continent")]
+        public string continent { get; private set; }
+
+
     }
 
     public struct countryinfo
