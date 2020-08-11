@@ -1,6 +1,9 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
+using Newtonsoft.Json.Schema;
 using System;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -17,7 +20,7 @@ public class Program
 
         await _client.LoginAsync(TokenType.Bot, "");
         await _client.StartAsync();
-
+        
         _client.MessageReceived += MessageReceived;
         _client.Ready += () =>
         {
@@ -29,6 +32,7 @@ public class Program
         await Task.Delay(-1);
     }
 
+    
     private async Task MessageReceived(SocketMessage message)
     {
         if (message.Content.ToLower() == "d!stats")
@@ -58,13 +62,33 @@ public class Program
             await message.Channel.SendMessageAsync(embed: statsembed);
         }
 
+        if (message.Content == "<@!" + _client.CurrentUser.Id + ">" ||
+            message.Content == "<@" + _client.CurrentUser.Id + ">")
+        {
+            await message.Channel.SendMessageAsync("Hello " + message.Author.Username + " my prefix is `d!`");
+        }
+
+        if (message.Content.ToLower() == "d!guilds")
+        {
+            var d = _client.Guilds.Count;
+          await message.Channel.SendMessageAsync("Currently i'm in " + d + " guilds.");
+        }
+       
+        if (message.Content.ToLower() == "d!date")
+        {
+            var date = System.DateTime.Today.Day + "/" + System.DateTime.Today.Month + "/" + System.DateTime.Today.Year;
+            await message.Channel.SendMessageAsync("Today : " + date);
+        }
+
+
         if (message.Content.ToLower() == "d!ping")
         {
-
+            await message.Channel.SendMessageAsync(":ping_pong: Pong! " + _client.Latency + "ms");
         }
         if (message.Content.ToLower() == "d!help")
         {
             var helpEmbedBuild = new EmbedBuilder()
+
             {
                 Color = new Color(2984),
                 Author = new EmbedAuthorBuilder()
@@ -79,7 +103,7 @@ public class Program
                     Text = "Discord.NET Example Bot"
                 }
             };
-            helpEmbedBuild.AddField("😄 General", "help, stats", true);
+            helpEmbedBuild.AddField("😄 General", "help, stats, ping, date, guilds", true);
             helpEmbedBuild.AddField("🔩 Support", "**[Saweria](https://saweria.co/hanifdwyputra)**", true);
 
             var helpembed = helpEmbedBuild.Build();
